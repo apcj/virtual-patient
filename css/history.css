@@ -1,0 +1,8 @@
+#section-notes {
+    min-height: 200px;
+    border: 1px solid #000000;
+}
+
+p {
+    width: 100%;
+}
