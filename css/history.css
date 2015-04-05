@@ -6,3 +6,8 @@
 p {
     width: 100%;
 }
+
+span.selected {
+    /*font-weight: bold;*/
+    background-color: yellow;
+}
