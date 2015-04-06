@@ -34,51 +34,68 @@
             .attr('class', function(d) { return /^\s+$/.test(d.text) ? 'space' : 'word' })
             .text(function(d) { return d.text; });
 
-        console.log(spans);
-
         p.selectAll('span.word')
             .call(drag);
 
+        function computePointerPosition() {
+            var e = d3.event.sourceEvent;
+            if (e.touches) {
+                return {
+                    x: e.touches[0].pageX,
+                    y: e.touches[0].pageY
+                };
+            }
+            return {
+                x: e.clientX,
+                y: e.clientY
+            };
+        }
+        var draggingWords = false;
         drag
             .on('dragstart', function(d) {
-                console.log('dragstart');
-                if (d.selected) return;
-                selectedWords = [];
-                selectedWords.push(d3.select(this).datum());
-                updateSelectionClasses();
-            })
-            .on('drag', function() {
-                var e = d3.event.sourceEvent;
-                var hoverElement;
-                var draggedElement = this;
-                if (e.touches) {
-                    hoverElement = document.elementFromPoint(e.touches[0].pageX, e.touches[0].pageY);
+                if (d.selected) {
+                    d3.select('body').append('div')
+                        .attr('class', 'drag-words')
+                        .text(selectedWords.map(function(d) { return d.text; }).join(''));
+                    draggingWords = true;
                 } else {
-                    hoverElement = document.elementFromPoint(e.clientX, e.clientY);
-                }
-                function findSequence(direction) {
-                    var sequence = [];
-                    sequence.push(d3.select(hoverElement).datum());
-                    var element = hoverElement;
-                    while (element[direction]) {
-                        element = element[direction];
-                        sequence.unshift(d3.select(element).datum());
-                        if (draggedElement === element) {
-                            return sequence;
-                        }
-                    }
-                    return null;
-                }
-                if (hoverElement.parentElement === parent) {
-                    selectedWords =
-                        findSequence('previousElementSibling') ||
-                        findSequence('nextElementSibling') ||
-                        selectedWords;
+                    selectedWords = [d3.select(this).datum()];
                     updateSelectionClasses();
                 }
             })
+            .on('drag', function() {
+                var position = computePointerPosition();
+                var hoverElement = document.elementFromPoint(position.x, position.y);
+                if (draggingWords) {
+                    d3.selectAll('div.drag-words')
+                        .style('left', position.x + 'px')
+                        .style('top', position.y + 'px');
+                } else {
+                    var draggedElement = this;
+                    function findSequence(direction, reverse) {
+                        var sequence = [d3.select(hoverElement).datum()];
+                        var element = hoverElement;
+                        while (element[direction]) {
+                            element = element[direction];
+                            sequence.push(d3.select(element).datum());
+                            if (draggedElement === element) {
+                                return reverse ? sequence.reverse() : sequence;
+                            }
+                        }
+                        return null;
+                    }
+                    if (hoverElement.parentElement === parent) {
+                        selectedWords =
+                            findSequence('previousElementSibling', true) ||
+                            findSequence('nextElementSibling', false) ||
+                            selectedWords;
+                        updateSelectionClasses();
+                    }
+                }
+            })
             .on('dragend', function() {
-                console.log(selectedWords);
+                d3.selectAll('div.drag-words').remove();
+                draggingWords = false;
             });
     });
 })();

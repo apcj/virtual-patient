@@ -11,3 +11,12 @@ span.selected {
     /*font-weight: bold;*/
     background-color: yellow;
 }
+
+div.drag-words {
+    position: absolute;
+    max-width: 200px;
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid black;
+    background-color: white;
+}
