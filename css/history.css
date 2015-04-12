@@ -1,6 +1,9 @@
 #section-notes {
     min-height: 200px;
-    border: 1px solid #000000;
+}
+
+#section-notes.hover {
+    background-color: rgb(251, 255, 145);
 }
 
 p {
@@ -13,7 +16,7 @@ span.selected {
 }
 
 div.drag-words {
-    position: absolute;
+    position: fixed;
     max-width: 200px;
     padding: 5px;
     border-radius: 5px;
