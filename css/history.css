@@ -11,7 +11,6 @@ p {
 }
 
 span.selected {
-    /*font-weight: bold;*/
     background-color: yellow;
 }
 
@@ -22,4 +21,17 @@ div.drag-words {
     border-radius: 5px;
     border: 1px solid black;
     background-color: white;
+}
+
+.note {
+    padding: 5px;
+    border-radius: 3px;
+}
+
+.note-button {
+    margin-left: 5px;
+}
+
+.note.selected {
+    background-color: lightblue;
 }

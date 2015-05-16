@@ -20,10 +20,79 @@
     }
 
     function renderNotes() {
-        var paragraphs = sectionNotes.select('#list-notes').selectAll('p').data(notes);
+        var paragraphs = sectionNotes.select('#list-notes').selectAll('p.note').data(notes);
 
         paragraphs.enter().append('p')
-            .text(function(d) { return d.quotation; });
+            .attr('class', 'note');
+
+        paragraphs
+            .classed('selected', function(note) { return note.selected; });
+
+        paragraphs.exit().remove();
+
+        var display = paragraphs.selectAll('span.display')
+            .data(function(note) { return note.editing ? [] : [note]; });
+
+        display.enter()
+            .append('span')
+            .attr('class', 'display')
+            .on('click', function(note) {
+                notes.forEach(function(note) { note.selected = false; });
+                note.selected = true;
+                renderNotes();
+            });
+
+        display
+            .text(function(d) { return d.text; });
+
+        display.exit().remove();
+
+        var editButton = paragraphs.selectAll('span.note-button-edit')
+            .data(function(note) { return note.editing ? [] : [note]; });
+
+        editButton.enter()
+            .append('span')
+            .attr('class', 'note-button note-button-edit glyphicon glyphicon-pencil')
+            .on('click', function(note) {
+                note.editing = true;
+                renderNotes();
+            });
+
+        editButton.exit().remove();
+
+        var deleteButton = paragraphs.selectAll('span.note-button-delete')
+            .data(function(note) { return note.editing ? [] : [note]; });
+
+        deleteButton.enter()
+            .append('span')
+            .attr('class', 'note-button note-button-delete glyphicon glyphicon-remove')
+            .on('click', function(note) {
+                notes.splice(notes.indexOf(note), 1);
+                renderNotes();
+            });
+
+        deleteButton.exit().remove();
+
+        var editor = paragraphs.selectAll('textarea')
+            .data(function(note) { return note.editing ? [note] : []; });
+
+        editor.enter()
+            .append('textarea')
+            .attr('type', 'textarea')
+            .attr('class', 'form-control')
+            .on('blur', function(note) {
+                note.text = this.value;
+                note.editing = false;
+                renderNotes();
+            });
+
+        editor
+            .text(function(d) { return d.quotation; })
+            .each(function() {
+                this.focus();
+            });
+
+        editor.exit().remove();
     }
 
     d3.selectAll('#section-history p').each(function() {
@@ -46,6 +115,9 @@
             .text(function(d) { return d.text; });
 
         p.selectAll('span.word')
+            .on('mouseover', function() {
+                console.log('mouse over!');
+            })
             .call(drag);
 
         function computePointerPosition() {
@@ -113,7 +185,8 @@
                     dragHandle.remove();
                     sectionNotes.classed('hover', false);
                     notes.push({
-                        quotation: quotationText
+                        quotation: quotationText,
+                        text: quotationText
                     });
                     renderNotes();
                 }
