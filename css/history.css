@@ -23,15 +23,57 @@ div.drag-words {
     background-color: white;
 }
 
+#section-notes {
+    padding: 0;
+    border: 1px solid mediumblue;
+    border-right-width: 20px;
+}
+
+#section-notes table {
+    margin: 0;
+    border-style: hidden;
+}
+
+#section-notes h3 {
+    margin: 0;
+    padding: 10px 2px;
+    font-weight: normal;
+    color: mediumblue;
+    font-size: 15px;
+    border-top: 1px solid mediumblue;
+    border-bottom: 1px solid mediumblue;
+}
+
+#section-notes td {
+    margin: 0;
+    padding: 10px 2px;
+    font-weight: normal;
+    color: mediumblue;
+    font-size: 15px;
+    border: 1px solid mediumblue;
+    border-collapse: collapse;
+}
+
 .note {
     padding: 5px;
-    border-radius: 3px;
+    font-size: 15px;
 }
 
 .note-button {
+    color: lightgray;
+    margin-left: 5px;
+}
+
+.note-button:hover, .note.selected .note-button {
+    color: black;
     margin-left: 5px;
 }
 
 .note.selected {
     background-color: lightblue;
+}
+
+.description {
+    color: darkred;
+    font-style: italic;
 }

@@ -20,17 +20,17 @@
     }
 
     function renderNotes() {
-        var paragraphs = sectionNotes.select('#list-notes').selectAll('p.note').data(notes);
+        var rows = sectionNotes.select('#list-notes').selectAll('div.note').data(notes);
 
-        paragraphs.enter().append('p')
+        rows.enter().append('div')
             .attr('class', 'note');
 
-        paragraphs
+        rows
             .classed('selected', function(note) { return note.selected; });
 
-        paragraphs.exit().remove();
+        rows.exit().remove();
 
-        var display = paragraphs.selectAll('span.display')
+        var display = rows.selectAll('span.display')
             .data(function(note) { return note.editing ? [] : [note]; });
 
         display.enter()
@@ -43,24 +43,28 @@
             });
 
         display
-            .text(function(d) { return d.text; });
+            .text(function(d) { return d.content; });
 
         display.exit().remove();
 
-        var editButton = paragraphs.selectAll('span.note-button-edit')
+        var editButton = rows.selectAll('span.note-button-edit')
             .data(function(note) { return note.editing ? [] : [note]; });
 
         editButton.enter()
             .append('span')
             .attr('class', 'note-button note-button-edit glyphicon glyphicon-pencil')
             .on('click', function(note) {
+                notes.forEach(function(note) {
+                    note.editing = false;
+                    note.selected = false;
+                });
                 note.editing = true;
                 renderNotes();
             });
 
         editButton.exit().remove();
 
-        var deleteButton = paragraphs.selectAll('span.note-button-delete')
+        var deleteButton = rows.selectAll('span.note-button-delete')
             .data(function(note) { return note.editing ? [] : [note]; });
 
         deleteButton.enter()
@@ -73,26 +77,64 @@
 
         deleteButton.exit().remove();
 
-        var editor = paragraphs.selectAll('textarea')
+        var contentEditor = rows.selectAll('textarea.content')
             .data(function(note) { return note.editing ? [note] : []; });
 
-        editor.enter()
+        contentEditor.enter()
             .append('textarea')
             .attr('type', 'textarea')
-            .attr('class', 'form-control')
-            .on('blur', function(note) {
-                note.text = this.value;
-                note.editing = false;
-                renderNotes();
-            });
+            .attr('class', 'form-control content');
 
-        editor
-            .text(function(d) { return d.quotation; })
+        contentEditor
+            .text(function(d) { return d.content; })
             .each(function() {
                 this.focus();
             });
 
-        editor.exit().remove();
+        contentEditor.exit().remove();
+
+        var reasonDescription = rows.selectAll('span.reason.description')
+            .data(function(note) { return note.editing ? [note] : []; });
+
+        reasonDescription.enter()
+            .append('span')
+            .attr('class', 'reason description')
+            .text('This is important because:');
+
+        reasonDescription.exit().remove();
+
+        var reasonEditor = rows.selectAll('textarea.reason')
+            .data(function(note) { return note.editing ? [note] : []; });
+
+        reasonEditor.enter()
+            .append('textarea')
+            .attr('type', 'textarea')
+            .attr('class', 'form-control reason');
+
+        reasonEditor
+            .text(function(d) { return d.reason; })
+            .each(function() {
+                this.focus();
+            });
+
+        reasonEditor.exit().remove();
+
+        var saveButton = rows.selectAll('button.save')
+            .data(function(note) { return note.editing ? [note] : []; });
+
+        saveButton.enter()
+            .append('button')
+            .attr('class', 'btn btn-default btn-primary save')
+            .text('Save')
+            .on('click', function(note) {
+                var row = d3.select(this.parentElement)
+                note.content = row.select('textarea.content').node().value;
+                note.reason = row.select('textarea.reason').node().value;
+                note.editing = false;
+                renderNotes();
+            });
+
+        saveButton.exit().remove();
     }
 
     d3.selectAll('#section-history p').each(function() {
@@ -184,13 +226,20 @@
                     var quotationText = dragHandle.text();
                     dragHandle.remove();
                     sectionNotes.classed('hover', false);
+                    notes.forEach(function(note) {
+                        note.editing = false;
+                        note.selected = false;
+                    });
                     notes.push({
                         quotation: quotationText,
-                        text: quotationText
+                        content: quotationText,
+                        editing: true
                     });
                     renderNotes();
                 }
                 draggingWords = false;
             });
     });
+
+    renderNotes();
 })();
