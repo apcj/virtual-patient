@@ -42,7 +42,10 @@
             .append('span')
             .attr('class', 'display')
             .on('click', function(note) {
-                notes.forEach(function(note) { note.selected = false; });
+                notes.forEach(function(note) {
+                    note.editing = false;
+                    note.selected = false;
+                });
                 note.selected = true;
                 renderNotes();
                 selectedWords = note.selectedWords.slice(0);
