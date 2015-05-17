@@ -56,7 +56,10 @@ div.drag-words {
 
 .note {
     padding: 5px;
-    font-size: 15px;
+}
+
+.note .display {
+    font: 400 25px 'Shadows Into Light Two', Helvetica, Sans-serif;
 }
 
 .note-button {
@@ -70,7 +73,7 @@ div.drag-words {
 }
 
 .note.selected {
-    background-color: lightblue;
+    background-color: yellow;
 }
 
 .description {

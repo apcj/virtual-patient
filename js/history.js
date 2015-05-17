@@ -2,7 +2,12 @@
     var allWords = [];
     var selectedWords = [];
 
-    var notes = [];
+    var notes = [
+        {
+            content: "PC/ Chest pain",
+            selectedWords: []
+        }
+    ];
 
     var sectionNotes = d3.select('#section-notes');
 
@@ -40,6 +45,8 @@
                 notes.forEach(function(note) { note.selected = false; });
                 note.selected = true;
                 renderNotes();
+                selectedWords = note.selectedWords.slice(0);
+                updateSelectionClasses();
             });
 
         display
@@ -48,7 +55,7 @@
         display.exit().remove();
 
         var editButton = rows.selectAll('span.note-button-edit')
-            .data(function(note) { return note.editing ? [] : [note]; });
+            .data(function(note) { return note.editable && !note.editing ? [note] : []; });
 
         editButton.enter()
             .append('span')
@@ -60,12 +67,14 @@
                 });
                 note.editing = true;
                 renderNotes();
+                selectedWords = note.selectedWords.slice(0);
+                updateSelectionClasses();
             });
 
         editButton.exit().remove();
 
         var deleteButton = rows.selectAll('span.note-button-delete')
-            .data(function(note) { return note.editing ? [] : [note]; });
+            .data(function(note) { return note.editable && !note.editing ? [note] : []; });
 
         deleteButton.enter()
             .append('span')
@@ -127,11 +136,13 @@
             .attr('class', 'btn btn-default btn-primary save')
             .text('Save')
             .on('click', function(note) {
-                var row = d3.select(this.parentElement)
+                var row = d3.select(this.parentElement);
                 note.content = row.select('textarea.content').node().value;
                 note.reason = row.select('textarea.reason').node().value;
                 note.editing = false;
                 renderNotes();
+                selectedWords = [];
+                updateSelectionClasses();
             });
 
         saveButton.exit().remove();
@@ -233,7 +244,9 @@
                     notes.push({
                         quotation: quotationText,
                         content: quotationText,
-                        editing: true
+                        editable: true,
+                        editing: true,
+                        selectedWords: selectedWords.slice(0)
                     });
                     renderNotes();
                 }
